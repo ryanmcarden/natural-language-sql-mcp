@@ -1,0 +1,70 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Embroidery Business MCP Server — Docker Compose
+#
+# Two modes:
+#
+# 1. POINT AT YOUR EXISTING MSSQL  (default)
+#    Set DB_SERVER in .env to your production/dev SQL Server host.
+#    Only the `mcp-server` service runs.
+#
+# 2. LOCAL MSSQL MIRROR  (optional)
+#    Uncomment the `mssql` service and the `depends_on` block below.
+#    The SQL Server 2022 container starts alongside the MCP server.
+#    Run `schema.sql` once to initialise the mirror database.
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  mcp-server:
+    build: .
+    container_name: embroidery-mcp
+    ports:
+      - "${MCP_PORT:-8000}:8000"
+    env_file:
+      - .env
+    environment:
+      MCP_HOST: "0.0.0.0"
+      MCP_PORT: "8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    # ── Uncomment if using the local MSSQL mirror below ──────────────────
+    # depends_on:
+    #   mssql:
+    #     condition: service_healthy
+
+  # ── Optional: local SQL Server 2022 mirror ────────────────────────────
+  # Uncomment this entire block to spin up a local MSSQL instance.
+  # After first `docker compose up`, run schema.sql against it:
+  #   docker exec -it embroidery-mssql /opt/mssql-tools18/bin/sqlcmd \
+  #     -S localhost -U sa -P "$SA_PASSWORD" -i /schema/schema.sql -C
+  #
+  # mssql:
+  #   image: mcr.microsoft.com/mssql/server:2022-latest
+  #   container_name: embroidery-mssql
+  #   environment:
+  #     ACCEPT_EULA: "Y"
+  #     SA_PASSWORD: "${DB_PASSWORD}"
+  #     MSSQL_DB:    "${DB_NAME:-embroidery}"
+  #   ports:
+  #     - "1433:1433"
+  #   volumes:
+  #     - mssql-data:/var/opt/mssql
+  #     - ./schema.sql:/schema/schema.sql:ro
+  #   healthcheck:
+  #     test: >
+  #       /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa
+  #       -P "$$SA_PASSWORD" -Q "SELECT 1" -C
+  #       || exit 1
+  #     interval: 15s
+  #     timeout: 10s
+  #     retries: 6
+  #     start_period: 30s
+  #   restart: unless-stopped
+
+# volumes:
+#   mssql-data:

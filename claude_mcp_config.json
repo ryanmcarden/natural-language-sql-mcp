@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "embroidery-mcp": {
+      "command": "node",
+      "args": ["/path/to/embroidery-mcp/server.js"],
+      "env": {
+        "PORT": "3000",
+        "MCP_ONLY": "false"
+      }
+    }
+  }
+}

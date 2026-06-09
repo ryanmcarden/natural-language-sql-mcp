@@ -1,0 +1,20 @@
+-- schema.sql — NOT NEEDED for the read-only MCP server.
+--
+-- This file was generated for a hypothetical mirror database.
+-- Since the MCP server now connects directly to your existing
+-- MSSQL database in read-only mode, no schema changes are required.
+--
+-- The only thing you need to do in your database is:
+--
+--   1. Create a read-only login (run in SSMS as sysadmin):
+--
+--        CREATE LOGIN embroidery_mcp_ro WITH PASSWORD = 'ChooseAStrongPassword!';
+--        USE your_database_name;
+--        CREATE USER embroidery_mcp_ro FOR LOGIN embroidery_mcp_ro;
+--        EXEC sp_addrolemember 'db_datareader', 'embroidery_mcp_ro';
+--
+--   2. Set those credentials in your .env file:
+--        DB_USER=embroidery_mcp_ro
+--        DB_PASSWORD=ChooseAStrongPassword!
+--
+-- That's it. No tables to create, no data to migrate.

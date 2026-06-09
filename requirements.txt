@@ -1,0 +1,14 @@
+# Embroidery Business MCP Server — Python dependencies
+
+# MCP framework (includes FastMCP, streamable HTTP transport, CLI)
+mcp[cli]>=1.8.0
+
+# MSSQL connectivity via ODBC
+pyodbc>=5.1.0
+
+# Load .env files
+python-dotenv>=1.0.0
+
+# Dashboard server (both are pulled in automatically by mcp[cli])
+starlette>=0.27.0
+uvicorn>=0.24.0

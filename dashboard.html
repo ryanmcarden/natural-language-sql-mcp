@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Embroidery Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.3/babel.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" crossorigin></script>
+<style>
+/* ... keep your existing CSS here ... */
+</style>
+</head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Embroidery Dashboard</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #f0f4f8;
+  --card:   #ffffff;
+  --navy:   #1a2f4a;
+  --blue:   #2563eb;
+  --purple: #7c3aed;
+  --green:  #16a34a;
+  --amber:  #d97706;
+  --red:    #dc2626;
+  --teal:   #0891b2;
+  --text:   #1e293b;
+  --muted:  #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 1px 3px rgba(0,0,0,.07), 0 2px 8px rgba(0,0,0,.05);
+  --radius: 12px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+/* ── header ── */
+.header {
+  background: var(--navy); color: #fff;
+  padding: 0 28px; height: 60px;
+  display: flex; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.header-logo  { font-size: 24px; }
+.header-title { font-size: 17px; font-weight: 700; }
+.header-sub   { font-size: 11px; color: #94a3b8; margin-top: 1px; }
+.header-spacer { flex: 1; }
+.header-meta  { text-align: right; font-size: 11px; color: #94a3b8; line-height: 1.7; }
+.refresh-btn  {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+  color: #fff; padding: 7px 16px; border-radius: 8px; cursor: pointer;
+  font-size: 13px; font-weight: 500; transition: background .15s; margin-left: 12px;
+}
+.refresh-btn:hover    { background: rgba(255,255,255,.2); }
+.refresh-btn:disabled { opacity: .5; cursor: default; }
+
+/* ── layout ── */
+.main { padding: 24px 28px; max-width: 1440px; margin: 0 auto; }
+.section-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+  text-transform: uppercase; color: var(--muted); margin: 28px 0 12px;
+}
+
+/* ── KPI grid ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+.kpi-card {
+  background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 20px 22px; border-left: 4px solid transparent; transition: transform .12s;
+}
+.kpi-card:hover { transform: translateY(-2px); }
+.kpi-card.blue   { border-color: var(--blue); }
+.kpi-card.green  { border-color: var(--green); }
+.kpi-card.purple { border-color: var(--purple); }
+.kpi-card.amber  { border-color: var(--amber); }
+.kpi-card.teal   { border-color: var(--teal); }
+.kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase;
+             letter-spacing: .6px; color: var(--muted); margin-bottom: 10px; }
+.kpi-value { font-size: 28px; font-weight: 800; color: var(--text); line-height: 1; }
+.kpi-sub   { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.kpi-yoy   { display: flex; align-items: center; gap: 5px; margin-top: 8px; font-size: 12px; font-weight: 600; }
+.kpi-yoy.up   { color: var(--green); }
+.kpi-yoy.down { color: var(--red); }
+.kpi-yoy.flat { color: var(--muted); }
+.kpi-yoy-label { font-size: 11px; color: var(--muted); font-weight: 400; }
+
+/* ── grids ── */
+.grid-2            { display: grid; gap: 16px; }
+.grid-2.left-heavy { grid-template-columns: 3fr 2fr; }
+.grid-2.equal      { grid-template-columns: 1fr 1fr; }
+
+/* ── card ── */
+.card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 24px; }
+.card-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.card-sub   { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+.chart-wrap { position: relative; }
+
+/* ── table ── */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead th {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .6px; color: var(--muted);
+  padding: 8px 10px; text-align: left; border-bottom: 2px solid var(--border);
+}
+.data-table thead th.r { text-align: right; }
+.data-table tbody td  { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.data-table tbody td.r { text-align: right; font-variant-numeric: tabular-nums; }
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: #f8fafc; }
+.prod-no   { font-weight: 700; }
+.prod-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── badges ── */
+.badge          { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+.badge-open     { background: #dbeafe; color: #1d4ed8; }
+.badge-invoiced { background: #dcfce7; color: #15803d; }
+.badge-shipped  { background: #f3e8ff; color: #7e22ce; }
+.badge-other    { background: #f1f5f9; color: #475569; }
+.badge-rush     { background: #fee2e2; color: #b91c1c; margin-left: 5px; }
+
+/* ── promotions ── */
+.promo-list { list-style: none; }
+.promo-row  { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.promo-row:last-child { border-bottom: none; }
+.promo-pill { background: #fef3c7; color: #92400e; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
+.promo-info { flex: 1; }
+.promo-name { font-weight: 600; font-size: 13px; }
+.promo-type { font-size: 11px; color: var(--muted); }
+.promo-end  { font-size: 11px; color: var(--muted); }
+
+/* ── loading / error ── */
+.spinner-wrap { display: flex; align-items: center; gap: 8px; color: var(--muted); padding: 20px 0; }
+.spin { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: rotate .7s linear infinite; }
+@keyframes rotate { to { transform: rotate(360deg); } }
+.empty-msg { color: var(--muted); font-size: 13px; padding: 12px 0; }
+.error-banner {
+  background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;
+  border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; font-size: 13px;
+}
+.error-banner strong { display: block; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+/* ── config ─────────────────────────────────────────────────────────────── */
+const API = "http://localhost:8080";
+
+/* ── utils ──────────────────────────────────────────────────────────────── */
+const fmt  = n => n == null ? "—" : "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtN = n => n == null ? "—" : Number(n).toLocaleString("en-US");
+const PALETTE = ["#2563eb","#7c3aed","#16a34a","#d97706","#dc2626","#0891b2","#be185d","#ea580c"];
+
+/* ── shared components ───────────────────────────────────────────────────── */
+function Spinner() {
+  return <div className="spinner-wrap"><div className="spin" /><span>Loading…</span></div>;
+}
+
+function StatusBadge({ status }) {
+  if (!status) return null;
+  const cls = status === "Open"     ? "badge-open"
+            : status === "Invoiced" ? "badge-invoiced"
+            : status === "Shipped"  ? "badge-shipped"
+            : "badge-other";
+  return <span className={`badge ${cls}`}>{status}</span>;
+}
+
+/* ── YoY delta helper ────────────────────────────────────────────────────── */
+function YoY({ current, prior }) {
+  if (prior == null) return <div className="kpi-yoy flat"><span className="kpi-yoy-label">no prior year data</span></div>;
+  if (prior === 0 && current === 0) return null;
+  if (prior === 0) return <div className="kpi-yoy up">▲ new <span className="kpi-yoy-label">vs last year</span></div>;
+  const pct   = ((current - prior) / prior) * 100;
+  const dir   = pct > 0 ? "up" : pct < 0 ? "down" : "flat";
+  const arrow = pct > 0 ? "▲" : pct < 0 ? "▼" : "–";
+  const lyFmt = typeof current === "number" && current % 1 !== 0
+    ? fmt(prior) : fmtN(prior);
+  return (
+    <div className={`kpi-yoy ${dir}`}>
+      {arrow} {Math.abs(pct).toFixed(1)}%
+      <span className="kpi-yoy-label">vs {lyFmt} last year</span>
+    </div>
+  );
+}
+
+/* ── KPIs ────────────────────────────────────────────────────────────────── */
+function KPICard({ label, value, sub, color, current, prior }) {
+  return (
+    <div className={`kpi-card ${color}`}>
+      <div className="kpi-label">{label}</div>
+      <div className="kpi-value">{value ?? "—"}</div>
+      {sub && <div className="kpi-sub">{sub}</div>}
+      <YoY current={current} prior={prior} />
+    </div>
+  );
+}
+
+function KPISection({ data, quotes }) {
+  if (!data) return (
+    <div className="kpi-grid">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="kpi-card"><Spinner /></div>
+      ))}
+    </div>
+  );
+  return (
+    <div className="kpi-grid">
+      <KPICard color="blue"   label="Today's Orders"
+        value={fmtN(data.today.orders)}   sub={fmt(data.today.revenue) + " revenue"}
+        current={data.today.orders}       prior={data.today.ly_orders} />
+      <KPICard color="green"  label="Monthly Booked"
+        value={fmt(data.month.revenue)}   sub={fmtN(data.month.orders) + " orders"}
+        current={data.month.revenue}      prior={data.month.ly_revenue} />
+      <KPICard color="purple" label="Month Invoiced"
+        value={fmt(data.month.invoiced)}  sub="Invoiced this month"
+        current={data.month.invoiced}     prior={data.month.ly_invoiced} />
+      <KPICard color="amber"  label="YTD Revenue"
+        value={fmt(data.ytd.revenue)}     sub={fmt(data.ytd.invoiced) + " invoiced"}
+        current={data.ytd.revenue}        prior={data.ytd.ly_revenue} />
+      <KPICard color="teal"   label="Active Orders"
+        value={fmtN(data.open_orders)}    sub={fmtN(data.shipped_orders) + " shipped"} />
+      <div className="kpi-card" style={{borderTop:'3px solid #be185d'}}>
+        <div className="kpi-label" style={{color:'#be185d'}}>Open Quotes</div>
+        <div className="kpi-value">{quotes ? fmtN(quotes.open_count) : '—'}</div>
+        <div className="kpi-sub">
+          {quotes ? `${fmtN(quotes.mtd_count)} MTD · ${fmt(quotes.mtd_value)} value` : 'Loading…'}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Revenue Trend ───────────────────────────────────────────────────────── */
+function RevenueTrendChart({ data }) {
+  const canvasRef = useRef(null);
+  const chartRef  = useRef(null);
+
+  useEffect(() => {
+    if (!data || !canvasRef.current) return;
+    if (chartRef.current) chartRef.current.destroy();
+    chartRef.current = new Chart(canvasRef.current, {
+      type: "bar",
+      data: {
+        labels: data.labels,
+        datasets: [
+          { label: "Revenue",  data: data.revenue,  backgroundColor: "rgba(37,99,235,.8)",  borderRadius: 5 },
+          { label: "Invoiced", data: data.invoiced, backgroundColor: "rgba(124,58,237,.6)", borderRadius: 5 },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: "top", labels: { font: { size: 12 } } } },
+        scales: {
+          x: { grid: { display: false } },
+          y: { ticks: { callback: v => "$" + (v >= 1000 ? (v / 1000).toFixed(0) + "k" : v) } },
+        },
+      },
+    });
+    return () => { if (chartRef.current) chartRef.current.destroy(); };
+  }, [data]);
+
+  return (
+    <div className="card">
+      <div className="card-title">📈 Revenue Trend</div>
+      <div className="card-sub">Last 12 months — revenue vs invoiced</div>
+      {!data ? <Spinner /> : <div className="chart-wrap" style={{ height: 260 }}><canvas ref={canvasRef} /></div>}
+    </div>
+  );
+}
+
+/* ── Best Sellers ────────────────────────────────────────────────────────── */
+function BestSellers({ data }) {
+  return (
+    <div className="card">
+      <div className="card-title">🏆 Best-Selling Products</div>
+      <div className="card-sub">By revenue · last 90 days</div>
+      {!data ? <Spinner /> : (
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th className="r">Qty</th>
+              <th className="r">Revenue</th>
+              <th className="r">Orders</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.best_sellers.length === 0
+              ? <tr><td colSpan={4} className="empty-msg">No data found</td></tr>
+              : data.best_sellers.map(s => (
+                <tr key={s.ProdNo}>
+                  <td>
+                    <div className="prod-no">{s.ProdNo}</div>
+                    <div className="prod-meta">{s.Brand}{s.Title ? ` · ${s.Title.substring(0, 34)}` : ""}</div>
+                  </td>
+                  <td className="r">{fmtN(s.TotalQty)}</td>
+                  <td className="r">{fmt(s.TotalRevenue)}</td>
+                  <td className="r">{fmtN(s.OrderCount)}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+/* ── Category Doughnut ───────────────────────────────────────────────────── */
+function CategoryChart({ data }) {
+  const canvasRef = useRef(null);
+  const chartRef  = useRef(null);
+
+  useEffect(() => {
+    if (!data || !canvasRef.current) return;
+    if (chartRef.current) chartRef.current.destroy();
+    const cats = data.by_category.slice(0, 7);
+    chartRef.current = new Chart(canvasRef.current, {
+      type: "doughnut",
+      data: {
+        labels: cats.map(c => c.Category || "Other"),
+        datasets: [{ data: cats.map(c => c.TotalRevenue), backgroundColor: PALETTE, borderWidth: 2 }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "right", labels: { font: { size: 11 }, boxWidth: 12 } },
+          tooltip: { callbacks: { label: ctx => ` ${fmt(ctx.raw)}` } },
+        },
+      },
+    });
+    return () => { if (chartRef.current) chartRef.current.destroy(); };
+  }, [data]);
+
+  return (
+    <div className="card">
+      <div className="card-title">📦 Sales by Category</div>
+      <div className="card-sub">Last 90 days</div>
+      {!data ? <Spinner /> : <div className="chart-wrap" style={{ height: 220 }}><canvas ref={canvasRef} /></div>}
+    </div>
+  );
+}
+
+/* ── Brand Table ─────────────────────────────────────────────────────────── */
+function BrandTable({ data }) {
+  return (
+    <div className="card">
+      <div className="card-title">🏷️ Sales by Brand</div>
+      <div className="card-sub">Top brands · last 90 days</div>
+      {!data ? <Spinner /> : (
+        <table className="data-table">
+          <thead>
+            <tr><th>Brand</th><th className="r">Revenue</th><th className="r">Qty</th></tr>
+          </thead>
+          <tbody>
+            {data.by_brand.map(b => (
+              <tr key={b.Brand}>
+                <td><strong>{b.Brand || "—"}</strong></td>
+                <td className="r">{fmt(b.TotalRevenue)}</td>
+                <td className="r">{fmtN(b.TotalQty)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+/* ── Promotions ──────────────────────────────────────────────────────────── */
+function Promotions({ data }) {
+  return (
+    <div className="card">
+      <div className="card-title">🎯 Active Promotions</div>
+      <div className="card-sub">Current specials &amp; discounts</div>
+      {!data ? <Spinner /> : (
+        data.specials.length === 0
+          ? <p className="empty-msg">No active promotions right now.</p>
+          : <ul className="promo-list">
+              {data.specials.map((s, i) => (
+                <li key={i} className="promo-row">
+                  <span className="promo-pill">{s.DiscountPct}% OFF</span>
+                  <div className="promo-info">
+                    <div className="promo-name">{s.SpecialItem}</div>
+                    <div className="promo-type">{s.SpecialType}-level discount</div>
+                  </div>
+                  <div className="promo-end">Ends {s.SpecialEndDate || "—"}</div>
+                </li>
+              ))}
+            </ul>
+      )}
+    </div>
+  );
+}
+
+/* ── Recent Orders ───────────────────────────────────────────────────────── */
+function RecentOrders({ data }) {
+  return (
+    <div className="card">
+      <div className="card-title">🕒 Recent Orders</div>
+      <div className="card-sub">Latest 15 orders</div>
+      {!data ? <Spinner /> : (
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th className="r">Invoice</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.orders.map(o => (
+              <tr key={o.OrderNo}>
+                <td>
+                  <strong>{o.OrderNo}</strong>
+                  {o.Rush && <span className="badge badge-rush">RUSH</span>}
+                </td>
+                <td>{o.CustomerName || "—"}</td>
+                <td>{o.OrderDate || "—"}</td>
+                <td><StatusBadge status={o.OrderStatus} /></td>
+                <td className="r">{o.InvoiceNumber || "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+/* ── App ─────────────────────────────────────────────────────────────────── */
+function App() {
+  const [kpis,        setKpis]        = useState(null);
+  const [trend,       setTrend]       = useState(null);
+  const [sellers,     setSellers]     = useState(null);
+  const [breakdown,   setBreakdown]   = useState(null);
+  const [orders,      setOrders]      = useState(null);
+  const [specials,    setSpecials]    = useState(null);
+  const [quotes,      setQuotes]      = useState(null);
+  const [loading,     setLoading]     = useState(false);
+  const [error,       setError]       = useState(null);
+  const [lastRefresh, setLastRefresh] = useState(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [k, t, s, b, o, sp, qt] = await Promise.all([
+        fetch(`${API}/api/kpis`).then(r => r.json()),
+        fetch(`${API}/api/revenue-trend`).then(r => r.json()),
+        fetch(`${API}/api/best-sellers`).then(r => r.json()),
+        fetch(`${API}/api/sales-breakdown`).then(r => r.json()),
+        fetch(`${API}/api/recent-orders`).then(r => r.json()),
+        fetch(`${API}/api/specials`).then(r => r.json()),
+        fetch(`${API}/api/quotes`).then(r => r.json()).catch(() => null),
+      ]);
+      setKpis(k); setTrend(t); setSellers(s);
+      setBreakdown(b); setOrders(o); setSpecials(sp); setQuotes(qt);
+      setLastRefresh(new Date().toLocaleTimeString());
+    } catch (err) {
+      setError("Could not connect to the dashboard server. Make sure dashboard.py is running on port 8080.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+    const timer = setInterval(load, 5 * 60 * 1000);
+    return () => clearInterval(timer);
+  }, [load]);
+
+  return (
+    <>
+      <header className="header">
+        <span className="header-logo">🧵</span>
+        <div>
+          <div className="header-title">Embroidery Shop Dashboard</div>
+          <div className="header-sub">Live order &amp; sales data</div>
+        </div>
+        <div className="header-spacer" />
+        <div className="header-meta">
+          {lastRefresh
+            ? <>{`Last updated: ${lastRefresh}`}<br />Auto-refreshes every 5 min</>
+            : loading ? "Loading…" : "—"}
+        </div>
+        <button className="refresh-btn" onClick={load} disabled={loading}>
+          {loading ? "⟳ Loading…" : "⟳ Refresh"}
+        </button>
+      </header>
+
+      <div className="main">
+        {error && (
+          <div className="error-banner">
+            <strong>⚠️ Connection error</strong>
+            {error}
+          </div>
+        )}
+
+        <div className="section-label">Key Metrics</div>
+        <KPISection data={kpis} quotes={quotes} />
+
+        <div className="section-label">Revenue Trend</div>
+        <RevenueTrendChart data={trend} />
+
+        <div className="section-label">Sales Performance — Last 90 Days</div>
+        <div className="grid-2 left-heavy">
+          <BestSellers data={sellers} />
+          <CategoryChart data={breakdown} />
+        </div>
+
+        <div className="grid-2 equal" style={{ marginTop: 16 }}>
+          <BrandTable data={breakdown} />
+          <Promotions data={specials} />
+        </div>
+
+        <div className="section-label">Recent Orders</div>
+        <RecentOrders data={orders} />
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
