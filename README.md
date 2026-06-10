@@ -3,6 +3,7 @@
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-MSSQL-red?logo=microsoftsqlserver&logoColor=white)
 ![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey)
+[![CI](https://github.com/ryanmcarden/natural-language-sql-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/ryanmcarden/natural-language-sql-mcp/actions/workflows/ci.yml)
 
 # Embroidery Business MCP Server
 
