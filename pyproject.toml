@@ -9,3 +9,4 @@ ignore = ["E402", "F401"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
