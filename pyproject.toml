@@ -2,9 +2,10 @@
 exclude = ["dashboard.py", "dashboard-preview.png"]
 
 [tool.ruff.lint]
-# E402: module level import not at top of file (dashboard.py has conditional imports)
-# F401: imported but unused
-ignore = []
+# E402: module level import not at top of file
+#   dashboard.py has conditional imports; database.py has mid-file threading import
+# F401: imported but unused (dashboard.py asyncio)
+ignore = ["E402", "F401"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
