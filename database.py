@@ -197,11 +197,9 @@ class Database:
         return {"customer_id": None, "customer_name": None, "source": None}
 
 
-    # --- Customers ---
-def search_customers(self, search: str = "", limit: int = 20) -> dict:
-    limit = min(max(1, int(limit or 20)), 100)   # ← add this
-    with self._conn() as conn:
-        
+# --- Customers ---
+    def search_customers(self, search: str = "", limit: int = 20) -> dict:
+        limit = min(max(1, int(limit or 20)), 100)
         with self._conn() as conn:
             cur = conn.cursor()
             if search:
@@ -224,7 +222,6 @@ def search_customers(self, search: str = "", limit: int = 20) -> dict:
                 )
             rows = cur.fetchall()
             return {"customers": _rows_to_list(cur, rows), "count": len(rows)}
-
 
     def get_customer(self, customer_id: int) -> dict:
         with self._conn() as conn:
