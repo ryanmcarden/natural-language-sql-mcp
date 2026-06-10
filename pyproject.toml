@@ -1,0 +1,10 @@
+[tool.ruff]
+exclude = ["dashboard.py", "dashboard-preview.png"]
+
+[tool.ruff.lint]
+# E402: module level import not at top of file (dashboard.py has conditional imports)
+# F401: imported but unused
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
