@@ -33,6 +33,18 @@ def _row_to_dict(cursor, row) -> dict:
 def _rows_to_list(cursor, rows) -> list:
     return [_row_to_dict(cursor, r) for r in rows]
 
+def _i(val) -> int:
+    try:
+        return int(val) if val is not None else 0
+    except (TypeError, ValueError):
+        return 0
+
+def _f(val) -> float:
+    try:
+        return float(val) if val is not None else 0.0
+    except (TypeError, ValueError):
+        return 0.0
+
 
 import threading as _threading
 
