@@ -198,8 +198,10 @@ class Database:
 
 
     # --- Customers ---
-
-    def search_customers(self, search: str = "", limit: int = 20) -> dict:
+def search_customers(self, search: str = "", limit: int = 20) -> dict:
+    limit = min(max(1, int(limit or 20)), 100)   # ← add this
+    with self._conn() as conn:
+        
         with self._conn() as conn:
             cur = conn.cursor()
             if search:
